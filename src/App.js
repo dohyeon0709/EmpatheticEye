@@ -9,7 +9,7 @@ import LoadingScreen from './LoadingScreen';
 gsap.registerPlugin(ScrollTrigger); // 📌 GSAP 플러그인 등록
 
 const Model = ({ url, position, rotation }) => {
-  const { scene } = useGLTF(url);
+  const { scene } = useGLTF(url, { draco: '/draco-gltf/' });
   const modelRef = useRef();
   const [scrollY, setScrollY] = useState(0);
 
@@ -74,6 +74,9 @@ const Model = ({ url, position, rotation }) => {
 
   return <primitive object={scene} position={position} scale={0.5} ref={modelRef} rotation={rotation} />;
 };
+
+// 모델 프리로드 설정
+useGLTF.preload("/3dmodel/symphatic_eye_draco.glb", { draco: '/draco-gltf/' });
 
 const MovingLight = () => {
   const lightRef = useRef();
@@ -486,11 +489,22 @@ useEffect(() => {
                 </div>
               </div>
             </div>
-            <Canvas camera={{ position: [0, 1, 5], fov: 50 }}>
+            <Canvas 
+              camera={{ position: [0, 1, 5], fov: 50 }}
+              dpr={[0.75, 1.5]} // 해상도 범위 낮춤
+              performance={{ min: 0.5 }} // 성능 제한 설정
+              frameloop="always" // 항상 렌더링으로 변경
+              gl={{ 
+                powerPreference: "high-performance", 
+                antialias: false, // 안티앨리어싱 비활성화
+                stencil: false, // 스텐실 버퍼 비활성화
+                depth: true // 깊이 버퍼 활성화 (3D 렌더링에 필요)
+              }}
+            >
               <Environment preset="dawn" background={false} />
               <ambientLight intensity={1} />
               <MovingLight />
-              <Model url={"/3dmodel/symphatic_eye.glb"} position={[-1.3, -0.5, -1]} rotation={[-0.2,0,0.45]}/>
+              <Model url={"/3dmodel/symphatic_eye_draco.glb"} position={[-1.3, -0.5, -1]} rotation={[-0.2,0,0.45]}/>
             </Canvas>
           </div>
         )}
